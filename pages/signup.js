@@ -2,10 +2,9 @@ import React,{useState,useEffect,useRef} from 'react';
 import {Form,Button,Message,Segment,TextArea,Divider} from 'semantic-ui-react';
 import {HeaderMessage,FooterMessage} from '../components/Common/WelcomeMessage';
 import CommonInputs from "../components/Common/CommonInputs";
+import ImageDropDiv from '../components/Common/ImageDropDiv';
+
 const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
-
-
-
 
 export default function Signup() {
 
@@ -31,6 +30,10 @@ export default function Signup() {
     const[username,setUsername]=useState('');
     const[usernameAvailable,setUsernameAvailable]=useState(false);
     const[usernameLoading,setUsernameLoading]=useState(false);
+    const[media,setMedia] =useState(null);
+    const[mediaPreview,setMediaPreview]=useState(null);
+    const[highlighted,setHighlighted]=useState(false);
+    const inputRef = useRef();
 
     const handleSubmit = e => e.preventDefault();
 
@@ -41,7 +44,12 @@ export default function Signup() {
     },[user])
 
     const handleChange = (e)=>{
-        const{name,value}=e.target;
+        const{name,value,files}=e.target;
+        if(name==='media'){
+            setMedia(files[0]);
+            setMediaPreview(URL.createObjectURL(files[0]));
+        }
+
         setUser(prev=>(
             {...prev,[name]:value}))
     }
@@ -52,6 +60,15 @@ export default function Signup() {
             <Message error header="Oops" content={errorMessage} onDismiss={()=>setErrorMessage(null)} />
 
         <Segment>
+            <ImageDropDiv 
+            mediaPreview={mediaPreview} 
+            setMediaPreview={setMediaPreview} 
+            setMedia={setMedia} 
+            inputRef={inputRef} 
+            highlighted={highlighted}
+            setHighlighted={setHighlighted}
+            handleChange={handleChange}
+            />
         <Form.Input
         required
             label="Name"
