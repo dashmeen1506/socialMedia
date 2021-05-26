@@ -3,6 +3,10 @@ import {Form,Button,Message,Segment,TextArea,Divider} from 'semantic-ui-react';
 import {HeaderMessage,FooterMessage} from '../components/Common/WelcomeMessage';
 import CommonInputs from "../components/Common/CommonInputs";
 import ImageDropDiv from '../components/Common/ImageDropDiv';
+import axios from 'axios';
+import baseUrl from '../utils/baseUrl';
+import {registerUser} from '../utils/authUser';
+import uploadPic from '../utils/uploadPicToCloudinary';
 
 const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
 
@@ -35,13 +39,56 @@ export default function Signup() {
     const[highlighted,setHighlighted]=useState(false);
     const inputRef = useRef();
 
-    const handleSubmit = e => e.preventDefault();
+    const handleSubmit =async e => {
+        e.preventDefault();
+        setFormLoading(true);
 
+        let profilePicUrl;
+        if(media != null)
+        {
+            profilePicUrl=await uploadPic(media);
+        }
 
+        if(media!=null && !profilePicUrl)
+        {
+            setFormLoading(false);
+            return setErrorMessage('Error Uploading Image');
+        }
+        await registerUser(user,profilePicUrl,setErrorMessage,setFormLoading);
+    }
     useEffect(()=>{
         const isUser = Object.values({name,email,password,bio}).every(item=>Boolean(item))
         isUser?setSubmitDisabled(false):setSubmitDisabled(true);
     },[user])
+
+    const checkUsername =async()=>{
+        setUsernameLoading(true);
+        try {
+            cancel && cancel();
+            const cancelToken = axios.CancelToken;
+            const res = await axios.get(`${baseUrl}/api/signup/${username}`,
+            {cancelToken:new cancelToken(canceler=>{
+                cancel=canceler;
+            })
+        });
+
+        if(errorMessage != null)
+        setErrorMessage(null);
+            if(res.data === 'Available'){
+                setUsernameAvailable(true);
+                setUser(prev=>({...prev,username}));
+            }
+        } catch (error) {
+            
+            setErrorMessage("Username Not Available");
+            setUsernameAvailable(false);
+        }
+        setUsernameLoading(false);
+    }
+
+    useEffect(()=>{
+        username===""?setUsernameAvailable(false):checkUsername()
+    },[username]);
 
     const handleChange = (e)=>{
         const{name,value,files}=e.target;
@@ -79,7 +126,7 @@ export default function Signup() {
             fluid
             icon="user"
             iconPosition="left"
-            type="email" />
+            type="name" />
         <Form.Input
         required
             label="Email"
