@@ -1,20 +1,3 @@
-// import App from "next/app";
-// import Layout from "../components/Layout/Layout";
-// import "semantic-ui-css/semantic.min.css";
-
-// class MyApp extends App {
-//   render() {
-//     const { Component } = this.props;
-
-//     return (
-//       <Layout>
-//         <Component />
-//       </Layout>
-//     );
-//   }
-// }
-
-// export default MyApp;
 import App from "next/app";
 import axios from "axios";
 import { parseCookies, destroyCookie } from "nookies";
@@ -29,7 +12,7 @@ class MyApp extends App {
     const { token } = parseCookies(ctx);
     let pageProps = {};
 
-    const protectedRoutes = ctx.pathname === "/";
+    const protectedRoutes = ctx.pathname === "/" || ctx.pathname === "/[username]";
 
     if (!token) {
       protectedRoutes && redirectUser(ctx, "/login");
