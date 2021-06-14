@@ -98,8 +98,6 @@ router.get("/", authMiddleware, async (req, res) => {
 
      postsToBeSent.length > 0 &&
       postsToBeSent.sort((a, b) => [new Date(b.createdAt) - new Date(a.createdAt)]);
-      
-      
     return res.json(postsToBeSent);
   } catch (error) {
     console.error(error);

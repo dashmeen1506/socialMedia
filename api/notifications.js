@@ -6,7 +6,7 @@ const UserModel = require("../models/UserModel");
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const { userId } = req;
+    const { userId } = req.params.userId;
 
     const user = await NotificationModel.findOne({ user: userId })
       .populate("notifications.user")
@@ -21,7 +21,7 @@ router.get("/", authMiddleware, async (req, res) => {
 
 router.post("/", authMiddleware, async (req, res) => {
   try {
-    const { userId } = req;
+    const { userId } = req.params.userId;
 
     const user = await UserModel.findById(userId);
 
